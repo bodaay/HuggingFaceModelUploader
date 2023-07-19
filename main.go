@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -74,6 +75,12 @@ func main() {
 				IsDataset = true
 				ModelOrDataSet = datasetName
 			}
+			_ = godotenv.Load() //this will give an error of the file is not there, but we dont really care
+
+			// Fetch token from command line flag or from .env file if not provided in flag
+			if HuggingFaceAccessToken == "" {
+				HuggingFaceAccessToken = os.Getenv("HF_API_KEY")
+			}
 			fmt.Println("Branch:", branch)
 			fmt.Println("DestinationPath:", destinationPath)
 			fmt.Println("NumberOfConcurrentConnections:", numberOfConcurrentConnections)
@@ -106,7 +113,7 @@ func main() {
 
 	rootCmd.Flags().IntVarP(&numberOfConcurrentConnections, "concurrent", "c", 5, "Number of LFS concurrent connections (optional)")
 
-	rootCmd.Flags().StringVarP(&HuggingFaceAccessToken, "token", "t", "", "HuggingFace Access Token, required for some Models/Datasets, you still need to manually accept agreement if model requires it (optional)")
+	rootCmd.Flags().StringVarP(&HuggingFaceAccessToken, "token", "t", "", "HuggingFace Access Token, this can be automatically supplied by env variable 'HF_API_KEY' or .env file, required for some Models/Datasets, you still need to manually accept agreement if model requires it (optional)")
 
 	rootCmd.Flags().BoolVarP(&install, "install", "i", false, "Install the binary to the OS default bin folder, Unix-like operating systems only")
 
